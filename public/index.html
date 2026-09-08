@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Champions Quiniela</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      background: #0b1020;
+      color: white;
+      min-height: 100vh;
+    }
+
+    header {
+      background: #111936;
+      padding: 18px;
+      text-align: center;
+      border-bottom: 1px solid #29345f;
+    }
+
+    header h1 {
+      font-size: 25px;
+    }
+
+    header p {
+      margin-top: 5px;
+      color: #aeb9e1;
+      font-size: 14px;
+    }
+
+    .container {
+      width: 94%;
+      max-width: 700px;
+      margin: 25px auto;
+    }
+
+    .card {
+      background: #151d3b;
+      border: 1px solid #29345f;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 18px;
+      box-shadow: 0 8px 25px rgba(0,0,0,.25);
+    }
+
+    h2 {
+      margin-bottom: 15px;
+    }
+
+    h3 {
+      margin-bottom: 10px;
+    }
+
+    input {
+      width: 100%;
+      padding: 13px;
+      margin: 7px 0;
+      border-radius: 10px;
+      border: 1px solid #39466f;
+      background: #0e1530;
+      color: white;
+      outline: none;
+    }
+
+    button {
+      border: none;
+      border-radius: 10px;
+      padding: 12px 16px;
+      margin-top: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      background: #315bea;
+      color: white;
+    }
+
+    button:hover {
+      opacity: .9;
+    }
+
+    .secondary {
+      background: #29345f;
+    }
+
+    .danger {
+      background: #c9364b;
+    }
+
+    .match {
+      background: #0e1530;
+      border: 1px solid #303d69;
+      border-radius: 13px;
+      padding: 15px;
+      margin: 12px 0;
+    }
+
+    .teams {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      font-weight: bold;
+    }
+
+    .score {
+      width: 55px;
+      text-align: center;
+      padding: 9px;
+      margin: 0;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .pool {
+      background: #0e1530;
+      border: 1px solid #303d69;
+      padding: 15px;
+      border-radius: 12px;
+      margin: 10px 0;
+    }
+
+    .code {
+      color: #6ea0ff;
+      font-size: 20px;
+      font-weight: bold;
+      letter-spacing: 2px;
+    }
+
+    .rank {
+      display: flex;
+      justify-content: space-between;
+      padding: 13px;
+      border-bottom: 1px solid #29345f;
+    }
+
+    .top {
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .message {
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 8px;
+      background: #26325b;
+    }
+
+    .error {
+      background: #5c2430;
+    }
+
+    .success {
+      background: #194c37;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>🏆 Champions Quiniela</h1>
+  <p>La quiniela de tu grupo de amigos ⚽</p>
+</header>
+
+<div class="container">
+
+  <!-- LOGIN -->
+  <section id="loginSection" class="card">
+    <h2>🔐 Iniciar sesión</h2>
+
+    <input id="loginEmail" type="email" placeholder="Correo electrónico">
+    <input id="loginPassword" type="password" placeholder="Contraseña">
+
+    <button onclick="login()">Iniciar sesión</button>
+    <button class="secondary" onclick="showRegister()">Crear cuenta</button>
+
+    <div id="loginMessage"></div>
+  </section>
+
+  <!-- REGISTRO -->
+  <section id="registerSection" class="card hidden">
+    <h2>👤 Crear cuenta</h2>
+
+    <input id="registerName" placeholder="Nombre">
+    <input id="registerEmail" type="email" placeholder="Correo electrónico">
+    <input id="registerPassword" type="password" placeholder="Contraseña (mínimo 6 caracteres)">
+
+    <button onclick="register()">Registrarme</button>
+    <button class="secondary" onclick="showLogin()">Ya tengo cuenta</button>
+
+    <div id="registerMessage"></div>
+  </section>
+
+  <!-- APP -->
+  <section id="appSection" class="hidden">
+
+    <div class="card">
+      <h2>👋 Hola, <span id="userName"></span></h2>
+      <button class="danger" onclick="logout()">Cerrar sesión</button>
+    </div>
+
+    <!-- QUINIELAS -->
+    <div class="card">
+      <h2>🏆 Mis quinielas</h2>
+
+      <input id="poolName" placeholder="Nombre de la quiniela">
+
+      <button onclick="createPool()">Crear quiniela</button>
+
+      <hr style="margin:18px 0;border-color:#29345f">
+
+      <input id="joinCode" placeholder="Código de invitación">
+
+      <button onclick="joinPool()">Unirme a quiniela</button>
+
+      <div id="pools"></div>
+    </div>
+
+    <!-- QUINIELA ACTIVA -->
+    <div id="poolSection" class="hidden">
+
+      <div class="card">
+        <h2 id="poolTitle"></h2>
+
+        <p>Código para invitar amigos:</p>
+
+        <div class="code" id="poolCode"></div>
+
+        <button onclick="sharePool()">📲 Compartir invitación</button>
+      </div>
+
+      <!-- PARTIDOS -->
+      <div class="card">
+        <h2>⚽ Partidos</h2>
+        <div id="matches"></div>
+      </div>
+
+      <!-- RANKING -->
+      <div class="card">
+        <h2>🥇 Ranking</h2>
+        <div id="ranking"></div>
+      </div>
+
+    </div>
+
+  </section>
+
+</div>
+
+<script>
+
+let token = localStorage.getItem("quiniela_token");
+let currentPool = null;
+
+function api(url, options = {}) {
+
+  options.headers = {
+    ...(options.headers || {}),
+    "Content-Type": "application/json"
+  };
+
+  if (token) {
+    options.headers.Authorization = "Bearer " + token;
+  }
+
+  return fetch(url, options);
+}
+
+function showRegister() {
+  document.getElementById("loginSection").classList.add("hidden");
+  document.getElementById("registerSection").classList.remove("hidden");
+}
+
+function showLogin() {
+  document.getElementById("registerSection").classList.add("hidden");
+  document.getElementById("loginSection").classList.remove("hidden");
+}
+
+async function register() {
+
+  const name = document.getElementById("registerName").value;
+  const email = document.getElementById("registerEmail").value;
+  const password = document.getElementById("registerPassword").value;
+
+  const res = await api("/api/register", {
+    method: "POST",
+    body: JSON.stringify({
+      name,
+      email,
+      password
+    })
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    document.getElementById("registerMessage").innerHTML =
+      `<div class="message error">${data.error}</div>`;
+    return;
+  }
+
+  token = data.token;
+  localStorage.setItem("quiniela_token", token);
+
+  startApp(data.user);
+}
+
+async function login() {
+
+  const email = document.getElementById("loginEmail").value;
+  const password = document.getElementById("loginPassword").value;
+
+  const res = await api("/api/login", {
+    method: "POST",
+    body: JSON.stringify({
+      email,
+      password
+    })
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    document.getElementById("loginMessage").innerHTML =
+      `<div class="message error">${data.error}</div>`;
+    return;
+  }
+
+  token = data.token;
+
+  localStorage.setItem("quiniela_token", token);
+
+  startApp(data.user);
+}
+
+function startApp(user) {
+
+  document.getElementById("loginSection").classList.add("hidden");
+  document.getElementById("registerSection").classList.add("hidden");
+  document.getElementById("appSection").classList.remove("hidden");
+
+  document.getElementById("userName").textContent = user.name;
+
+  loadPools();
+}
+
+function logout() {
+
+  localStorage.removeItem("quiniela_token");
+
+  token = null;
+
+  location.reload();
+}
+
+async function loadPools() {
+
+  const res = await api("/api/pools");
+
+  if (!res.ok) return;
+
+  const pools = await res.json();
+
+  const container = document.getElementById("pools");
+
+  container.innerHTML = "";
+
+  if (!pools.length) {
+    container.innerHTML =
+      "<p style='margin-top:15px;color:#aeb9e1'>Todavía no tienes quinielas.</p>";
+    return;
+  }
+
+  pools.forEach(pool => {
+
+    container.innerHTML += `
+      <div class="pool">
+        <h3>${escapeHtml(pool.name)}</h3>
+        <p>👥 ${pool.members} participantes</p>
+        <button onclick="openPool(${pool.id})">
+          Abrir quiniela
+        </button>
+      </div>
+    `;
+
+  });
+}
+
+async function createPool() {
+
+  const name = document.getElementById("poolName").value.trim();
+
+  if (!name) {
+    alert("Escribe un nombre para la quiniela");
+    return;
+  }
+
+  const res = await api("/api/pools", {
+    method: "POST",
+    body: JSON.stringify({ name })
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    alert(data.error);
+    return;
+  }
+
+  document.getElementById("poolName").value = "";
+
+  loadPools();
+
+  openPool(data.id);
+}
+
+async function joinPool() {
+
+  const code = document.getElementById("joinCode").value.trim();
+
+  if (!code) {
+    alert("Escribe el código");
+    return;
+  }
+
+  const res = await api("/api/pools/join", {
+    method: "POST",
+    body: JSON.stringify({ code })
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    alert(data.error);
+    return;
+  }
+
+  document.getElementById("joinCode").value = "";
+
+  loadPools();
+
+  openPool(data.id);
+}
+
+async function openPool(id) {
+
+  const res = await api("/api/pools/" + id);
+
+  if (!res.ok) {
+    alert("No tienes acceso a esta quiniela");
+    return;
+  }
+
+  currentPool = await res.json();
+
+  document.getElementById("poolSection").classList.remove("hidden");
+
+  document.getElementById("poolTitle").textContent =
+    "🏆 " + currentPool.name;
+
+  document.getElementById("poolCode").textContent =
+    currentPool.code;
+
+  loadMatches();
+  loadRanking();
+}
+
+async function loadMatches() {
+
+  const res = await api("/api/matches/" + currentPool.id);
+
+  const matches = await res.json();
+
+  const container = document.getElementById("matches");
+
+  container.innerHTML = "";
+
+  if (!matches.length) {
+
+    container.innerHTML = `
+      <p style="color:#aeb9e1">
+        Todavía no hay partidos agregados.
+      </p>
+    `;
+
+    return;
+  }
+
+  const predRes =
+    await api("/api/my-predictions/" + currentPool.id);
+
+  const predictions = await predRes.json();
+
+  const predMap = {};
+
+  predictions.forEach(p => {
+    predMap[p.match_id] = p;
+  });
+
+  matches.forEach(match => {
+
+    const pred = predMap[match.id];
+
+    const disabled =
+      match.closed ||
+      new Date(match.starts_at) <= new Date();
+
+    container.innerHTML += `
+
+      <div class="match">
+
+        <small>
+          ${escapeHtml(match.stage)}
+          · Jornada ${match.matchday}
+        </small>
+
+        <div style="margin:8px 0;color:#aeb9e1">
+          ${new Date(match.starts_at).toLocaleString()}
+        </div>
+
+        <div class="teams">
+
+          <span>${escapeHtml(match.home)}</span>
+
+          <div>
+
+            <input
+              class="score"
+              type="number"
+              min="0"
+              id="home-${match.id}"
+              value="${pred ? pred.home_score : ""}"
+              ${disabled ? "disabled" : ""}
+            >
+
+            -
+
+            <input
+              class="score"
+              type="number"
+              min="0"
+              id="away-${match.id}"
+              value="${pred ? pred.away_score : ""}"
+              ${disabled ? "disabled" : ""}
+            >
+
+          </div>
+
+          <span>${escapeHtml(match.away)}</span>
+
+        </div>
+
+        ${
+          disabled
+          ? `<p style="margin-top:10px;color:#ff8998">
+              🔒 Pronóstico cerrado
+             </p>`
+          : `<button onclick="savePrediction(${match.id})">
+              Guardar pronóstico
+             </button>`
+        }
+
+      </div>
+
+    `;
+
+  });
+}
+
+async function savePrediction(matchId) {
+
+  const home =
+    document.getElementById("home-" + matchId).value;
+
+  const away =
+    document.getElementById("away-" + matchId).value;
+
+  if (home === "" || away === "") {
+    alert("Completa ambos marcadores");
+    return;
+  }
+
+  const res = await api("/api/predictions", {
+    method: "POST",
+    body: JSON.stringify({
+      match_id: matchId,
+      home_score: Number(home),
+      away_score: Number(away)
+    })
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    alert(data.error);
+    return;
+  }
+
+  alert("✅ Pronóstico guardado");
+
+  loadRanking();
+}
+
+async function loadRanking() {
+
+  const res =
+    await api("/api/ranking/" + currentPool.id);
+
+  if (!res.ok) return;
+
+  const ranking = await res.json();
+
+  const container =
+    document.getElementById("ranking");
+
+  container.innerHTML = "";
+
+  ranking.forEach((user, index) => {
+
+    let medal = "";
+
+    if (index === 0) medal = "🥇";
+    if (index === 1) medal = "🥈";
+    if (index === 2) medal = "🥉";
+
+    container.innerHTML += `
+
+      <div class="rank">
+
+        <div>
+          <span class="top">
+            ${medal} #${user.pos}
+          </span>
+
+          ${escapeHtml(user.avatar || "⚽")}
+          ${escapeHtml(user.name)}
+        </div>
+
+        <strong>
+          ${user.pts} pts
+        </strong>
+
+      </div>
+
+    `;
+
+  });
+}
+
+async function sharePool() {
+
+  const text =
+    `🏆 Únete a mi quiniela de Champions.
+
+Nombre: ${currentPool.name}
+
+Código: ${currentPool.code}
+
+Entra a la aplicación y usa este código para unirte. ⚽`;
+
+  if (navigator.share) {
+
+    await navigator.share({
+      title: "Champions Quiniela",
+      text
+    });
+
+  } else {
+
+    await navigator.clipboard.writeText(text);
+
+    alert("✅ Invitación copiada");
+
+  }
+}
+
+function escapeHtml(text) {
+
+  const div = document.createElement("div");
+
+  div.textContent = text;
+
+  return div.innerHTML;
+}
+
+async function checkSession() {
+
+  if (!token) return;
+
+  const res = await api("/api/me");
+
+  if (!res.ok) {
+
+    localStorage.removeItem("quiniela_token");
+
+    token = null;
+
+    return;
+  }
+
+  const user = await res.json();
+
+  startApp(user);
+}
+
+checkSession();
+
+</script>
+
+</body>
+</html>
